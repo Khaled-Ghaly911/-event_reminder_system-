@@ -108,8 +108,9 @@ addEventBtn.addEventListener('click', function () {
     }, rt);
 
     setTimeout(function () {
-        updateUi();
-    }, eventTime - nowStamp + 10000);
+        console.log('hello');
+        ul.remove();
+    }, eventTime - nowStamp + 2000);
 
 });
 
