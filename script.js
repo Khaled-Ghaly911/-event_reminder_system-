@@ -29,6 +29,8 @@ const User = function (name, email) {
 
 const ul = document.createElement("ul");
 output.insertAdjacentElement('afterbegin', ul);
+ul.style.listStyleType = 'none';
+output.style.color = 'green';
 
 // 2. Implement the user login functionality.
 let currentUser;
@@ -55,23 +57,63 @@ addEventBtn.addEventListener('click', function () {
     const title = eventTitleField.value;
     const eventDateTime = eventDateTimeField.value;
     const eventReminderTime = eventReminderTimeField.value;
+    let nowStamp = new Date().getTime();
+    let eventTimeStamp = new Date(eventDateTime).getTime();
+    // Display the output section
+    output.style.display = '';
+
+    if (eventTimeStamp - nowStamp < Number(eventReminderTime) * 60 * 1000) {
+        alert(`the rest time is less than reminder time`);
+        return 0;
+    }
 
     const event = new Event(title, eventDateTime, eventReminderTime);
     currentUser.addEvent(event);
 
     // Convert event dates to Date objects
     datesArray = currentUser.events.map((event) => {
+        let date = new Date(event.dateTime);
+
         return {
-            date: new Date(event.dateTime),
+            date: `${date.getHours()}:${date.getMinutes()}`,
             title: event.title,
             timeStamp: new Date(event.dateTime).getTime(),
             reminderTime: event.reminderTime
         }
     });
 
-    // timeStamps = datesArray.map((date) => date.getTime());
+    let eventTime = datesArray[datesArray.length - 1].timeStamp;
+    let reminderTimeMils = Number(datesArray[datesArray.length - 1].reminderTime) * 60 * 1000;
+
+
+    let eventTitle = datesArray[datesArray.length - 1].title;
+    let remiderMin = datesArray[datesArray.length - 1].reminderTime
+
+    let rt = eventTime - nowStamp - reminderTimeMils;
 
     console.log(datesArray);
+
+    updateUi();
+
+
+
+    clearInputFieldsEvent();
+
+    console.log(currentUser);
+
+
+    setTimeout(function () {
+        alert(`your ${eventTitle} is after ${remiderMin} minutes`);
+        currentUser.events.pop();
+    }, rt);
+
+    setTimeout(function () {
+        updateUi();
+    }, eventTime - nowStamp + 10000);
+
+});
+
+function updateUi() {
     // Clear the list before adding new items
     ul.innerHTML = '';
 
@@ -82,62 +124,10 @@ addEventBtn.addEventListener('click', function () {
         ul.appendChild(li);
     });
 
+}
 
-    // Display the output section
-    output.style.display = '';
-
-    // Clear the input fields
+function clearInputFieldsEvent() {
     eventTitleField.value = '';
     eventDateTimeField.value = '';
     eventReminderTimeField.value = '';
-
-    console.log(currentUser);
-    setInterval(function(){
-        let eventTime = datesArray[datesArray.length - 1].timeStamp;
-        let nowStamp = new Date().getTime();
-        let reminderTimeMils =  Number(datesArray[datesArray.length - 1].reminderTime) * 60 * 1000
-        
- 
-        let eventTitle = datesArray[datesArray.length - 1].title;
-        let remiderMin = datesArray[datesArray.length - 1].reminderTime
-        if(eventTime === nowStamp + reminderTimeMils){
-            
-            setTimeout(function () {
-                alert(`your ${eventTitle} is after ${remiderMin} minutes`);
-            }, 1000);
-            
-        }
-    }, 1000)
-    // datesArray.pop()
-    // // Clear the list before adding new items
-    // ul.innerHTML = '';
-    
-    // // Render the updated list of events
-    // datesArray.forEach((date) => {
-    //     let li = document.createElement("li");
-    //     li.textContent = date.date;
-    //     ul.appendChild(li);
-    // });
-    
-
-
-});
-
-
-
-// let min = datesArray[0];
-// for(el of datesArray){s
-//     if(el < min){
-//         min = el;
-//     }
-// }
-
-// let now = new Date();
-// console.log(currentUser)
-
-
-// 4. Set up reminders using setTimeout().
-// This part would go here
-
-// 5. Display upcoming events using setInterval().
-// This part would go here
+}
